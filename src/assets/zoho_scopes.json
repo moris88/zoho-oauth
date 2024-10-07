@@ -1,0 +1,74 @@
+{
+    "ZohoCRM": {
+        "description": "Zoho CRM API Scopes",
+        "scopes": [
+            "ZohoCRM.modules.ALL",
+            "ZohoCRM.settings.ALL",
+            "ZohoCRM.settings.READ",
+            "ZohoCRM.modules.contacts.READ",
+            "ZohoCRM.modules.contacts.CREATE",
+            "ZohoCRM.modules.contacts.UPDATE",
+            "ZohoCRM.modules.contacts.DELETE",
+            "ZohoCRM.modules.deals.READ",
+            "ZohoCRM.modules.deals.CREATE",
+            "ZohoCRM.modules.deals.UPDATE",
+            "ZohoCRM.modules.deals.DELETE",
+            "ZohoCRM.modules.custom.ALL"
+        ]
+    },
+    "ZohoPeople": {
+        "description": "Zoho People API Scopes",
+        "scopes": [
+            "ZohoPeople.employee.READ",
+            "ZohoPeople.employee.CREATE",
+            "ZohoPeople.employee.UPDATE",
+            "ZohoPeople.attendance.ALL",
+            "ZohoPeople.attendance.READ",
+            "ZohoPeople.leave.ALL",
+            "ZohoPeople.leave.READ",
+            "ZohoPeople.performance.READ",
+            "ZohoPeople.performance.UPDATE"
+        ]
+    },
+    "ZohoBooks": {
+        "description": "Zoho Books API Scopes",
+        "scopes": [
+            "ZohoBooks.fullaccess.ALL",
+            "ZohoBooks.salesorders.READ",
+            "ZohoBooks.salesorders.CREATE",
+            "ZohoBooks.invoices.READ",
+            "ZohoBooks.invoices.CREATE",
+            "ZohoBooks.estimates.READ",
+            "ZohoBooks.contacts.READ",
+            "ZohoBooks.contacts.CREATE",
+            "ZohoBooks.items.READ",
+            "ZohoBooks.items.CREATE"
+        ]
+    },
+    "ZohoDesk": {
+        "description": "Zoho Desk API Scopes",
+        "scopes": [
+            "ZohoDesk.tickets.ALL",
+            "ZohoDesk.tickets.READ",
+            "ZohoDesk.tickets.CREATE",
+            "ZohoDesk.contacts.READ",
+            "ZohoDesk.contacts.CREATE",
+            "ZohoDesk.departments.READ",
+            "ZohoDesk.teams.READ",
+            "ZohoDesk.basic.READ"
+        ]
+    },
+    "ZohoProjects": {
+        "description": "Zoho Projects API Scopes",
+        "scopes": [
+            "ZohoProjects.projects.ALL",
+            "ZohoProjects.projects.READ",
+            "ZohoProjects.projects.CREATE",
+            "ZohoProjects.projects.UPDATE",
+            "ZohoProjects.tasks.READ",
+            "ZohoProjects.tasks.CREATE",
+            "ZohoProjects.milestones.READ",
+            "ZohoProjects.milestones.CREATE"
+        ]
+    }
+}
