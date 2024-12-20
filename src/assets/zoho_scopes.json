@@ -1,4 +1,10 @@
 {
+    "ZohoProfile": {
+        "description": "Zoho Profile API Scopes",
+        "scopes": [
+            "AaaServer.profile.Read"
+        ]
+    },
     "ZohoCRM": {
         "description": "Zoho CRM API Scopes",
         "scopes": [
@@ -69,6 +75,13 @@
             "ZohoProjects.tasks.CREATE",
             "ZohoProjects.milestones.READ",
             "ZohoProjects.milestones.CREATE"
+        ]
+    },
+    "ZohoCreator": {
+        "description": "Zoho Creator API Scopes",
+        "scopes": [
+            "ZohoCreator.report.READ",
+            "ZohoCreator.report.CREATE"
         ]
     }
 }

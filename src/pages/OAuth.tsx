@@ -35,6 +35,7 @@ const OAuth = () => {
                         const data = await response.json();
                         setResponse(data);
                         localStorage.setItem('refresh_token', data.refresh_token);
+                        localStorage.setItem('api_domain', data.api_domain);
                         localStorage.setItem('location', location!);
                     } else {
                         setError(`Error fetching access token: ${response.statusText}`);
@@ -47,22 +48,41 @@ const OAuth = () => {
         }
     }, [code, location]);
 
+    const handlePrev = () => {
+        window.location.href = '/scope';
+    };
+
+    const handleReAuth = () => {
+        localStorage.clear();
+        window.location.href = '/';
+    };
+
     return (
         <div className="flex flex-col items-center p-5 bg-gray-100 min-h-screen">
             <h1 className="text-2xl font-bold mb-4">OAuth Authentication</h1>
             <div className="w-full max-w-lg bg-white p-6 rounded-lg shadow-md">
                 {!code && scopes && (
-                    <div className="w-full flex justify-center items-center">
-                        <Button className="mt-4">
+                    <div className="w-full flex flex-col justify-center items-center gap-4">
+                        <Textarea
+                            readOnly
+                            value={oauth_url}
+                            rows={8}
+                        />
+                        <div className='w-full flex justify-center items-center gap-4'>
                             <Link to={oauth_url} className="block">
-                                Autentica con Zoho
+                                <Button className="mt-4" disabled={!code && scopes.length === 0}>
+                                    Authenticate
+                                </Button>
                             </Link>
-                        </Button>
+                            <Button onClick={handlePrev} className="mt-4">
+                                Previous
+                            </Button>
+                        </div>
                     </div>
                 )}
                 {!error && code && (
-                    <>
-                        <div className="mb-4">
+                    <div className="w-full flex flex-col justify-center items-center gap-4">
+                        <div className="w-full flex flex-col gap-4">
                             <label className="block mb-2 text-sm font-medium text-gray-700">
                                 Code:
                             </label>
@@ -71,7 +91,7 @@ const OAuth = () => {
                                 value={code}
                             />
                         </div>
-                        <div className="flex items-center">
+                        <div className="w-full flex flex-col gap-4 justify-center items-center">
                             {!response ? (
                                 <>
                                     <Spinner
@@ -81,33 +101,39 @@ const OAuth = () => {
                                     <p>Fetching Access Token...</p>
                                 </>
                             ) : (
-                                <div className="w-full flex flex-col gap-2">
+                                <div className="w-full flex flex-col gap-4 justify-center items-center">
                                     <Textarea
                                         value={JSON.stringify(response, null, 2)}
-                                        rows={6}
+                                        readOnly
+                                        rows={15}
                                     />
-                                    <div className="w-full flex justify-center items-center gap-2">
+                                    <div className="w-full flex justify-center items-center gap-4">
                                         <CopyText textToCopy={JSON.stringify(response)} />
-                                        <Button>
-                                            <Link to="/request" className="block">
-                                                Avanti
-                                            </Link>
+                                        <Link to="/request" className="block">
+                                            <Button>
+                                                Next
+                                            </Button>
+                                        </Link>
+                                        <Button color="failure" onClick={handleReAuth}>
+                                            Re-authenticate
                                         </Button>
                                     </div>
                                 </div>
                             )}
                         </div>
-                    </>
+                    </div>
                 )}
                 {error && (
-                    <>
-                        <pre>{JSON.stringify(error)}</pre>
-                        <Button className="mt-4">
-                            <Link to="/" className="block">
-                                Ripeti l'autenticazione
-                            </Link>
+                    <div className="w-full flex flex-col justify-center items-center gap-4">
+                        <Textarea
+                            value={JSON.stringify(error, null, 2)}
+                            readOnly
+                            rows={15}
+                        />
+                        <Button className="mt-4" color="failure" onClick={handleReAuth}>
+                            Re-authenticate
                         </Button>
-                    </>
+                    </div>
                 )}
             </div>
         </div>
