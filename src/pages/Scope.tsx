@@ -46,11 +46,8 @@ const Scope = () => {
                     <Button onClick={handleSave} className="mt-4" disabled={emptyScopes}>
                         Next
                     </Button>
-                    <Button onClick={handlePrev} className="mt-4">
+                    <Button onClick={handlePrev} color="gray" className="mt-4">
                         Previous
-                    </Button>
-                    <Button color="failure" onClick={handleCancel} className="mt-4">
-                        Cancel
                     </Button>
                 </div>
             </div>

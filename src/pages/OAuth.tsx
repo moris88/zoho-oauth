@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Button, Spinner, Textarea, TextInput } from 'flowbite-react';
+import { Button, Select, Spinner, Textarea, TextInput } from 'flowbite-react';
 import { REDIRECT_URI, SERVER_URL } from '@/utils';
 import { CopyText } from '@/components';
 
 const OAuth = () => {
     const [searchParams] = useSearchParams();
     const code = searchParams.get('code');
-    const location = searchParams.get('location');
     const [error, setError] = useState<string | null>(null);
     const [response, setResponse] = useState<any | null>(null);
+    const [location, setLocation] = useState('com');
 
     const scopes = localStorage.getItem('scopes');
 
@@ -23,24 +23,24 @@ const OAuth = () => {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            location: location!,
+                            location: location,
                             client_id: localStorage.getItem('client_id'),
                             client_secret: localStorage.getItem('client_secret'),
                             redirect_uri: REDIRECT_URI,
                             code: code!,
                         }),
                     });
-
                     if (response.ok) {
                         const data = await response.json();
                         setResponse(data);
                         localStorage.setItem('refresh_token', data.refresh_token);
                         localStorage.setItem('api_domain', data.api_domain);
-                        localStorage.setItem('location', location!);
                     } else {
+                        console.error(response);
                         setError(`Error fetching access token: ${response.statusText}`);
                     }
                 } catch (error) {
+                    console.error(error);
                     setError(`Error fetching access token: ${JSON.stringify(error)}`);
                 }
             };
@@ -69,12 +69,16 @@ const OAuth = () => {
                             rows={8}
                         />
                         <div className='w-full flex justify-center items-center gap-4'>
+                            <Select id="location" className="mt-4" value={location} onChange={(e) => setLocation(e.target.value)}>
+                                <option value={'com'}>COM</option>
+                                <option value={'us'}>US</option>
+                            </Select>
                             <Link to={oauth_url} className="block">
                                 <Button className="mt-4" disabled={!code && scopes.length === 0}>
                                     Authenticate
                                 </Button>
                             </Link>
-                            <Button onClick={handlePrev} className="mt-4">
+                            <Button onClick={handlePrev} className="mt-4" color="gray">
                                 Previous
                             </Button>
                         </div>

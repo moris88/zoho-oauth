@@ -31,7 +31,7 @@ const CopyText = ({ icon = false, textToCopy }: { icon?: boolean, textToCopy: st
             {copySuccess && <p className="mt-2 text-green-500">{copySuccess}</p>}
 
             {/* Pulsante per copiare */}
-            <Button onClick={handleCopy}>Copy</Button>
+            <Button color="gray" onClick={handleCopy}>Copy</Button>
         </div>
     );
 };

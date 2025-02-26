@@ -45,7 +45,7 @@ const Home = () => {
                         </p>
                         <div>
                             <Link to="https://api-console.zoho.com/" target="_blank" className="block">
-                                <Button>
+                                <Button color="gray">
                                     Go to Zoho API Console
                                 </Button>
                             </Link>
@@ -88,7 +88,7 @@ const Home = () => {
                     <Button onClick={handleSave} className="mt-4" disabled={clientId === null && clientSecret === null}>
                         Next
                     </Button>
-                    <Button color="failure" onClick={handleCancel} className="mt-4">
+                    <Button color="gray" onClick={handleCancel} className="mt-4">
                         Cancel
                     </Button>
                 </div>

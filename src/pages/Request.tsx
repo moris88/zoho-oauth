@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Button, Select, Textarea, TextInput } from 'flowbite-react';
 import { methodOptions, SERVER_URL } from '@/utils';
+import { FaRegTrashCan } from "react-icons/fa6";
 
 const Request = () => {
     const [method, setMethod] = useState('GET');
@@ -136,8 +137,8 @@ const Request = () => {
                                     value={param.value}
                                     onChange={(e) => handleParamChange(index, 'value', e.target.value)}
                                 />
-                                <Button color="failure" onClick={() => handleRemoveParam(index)}>
-                                    -
+                                <Button color="gray" onClick={() => handleRemoveParam(index)}>
+                                    <FaRegTrashCan className="w-4 h-4" />
                                 </Button>
                             </div>
                         ))}
@@ -158,8 +159,8 @@ const Request = () => {
                                     value={header.value}
                                     onChange={(e) => handleHeaderChange(index, 'value', e.target.value)}
                                 />
-                                <Button color="failure" onClick={() => handleRemoveHeader(index)}>
-                                    -
+                                <Button color="gray" onClick={() => handleRemoveHeader(index)}>
+                                    <FaRegTrashCan className="w-4 h-4" />
                                 </Button>
                             </div>
                         ))}

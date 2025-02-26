@@ -62,6 +62,12 @@ const ScopeSelector = ({ onEmptyScopes }: ScopeSelectorProps) => {
         setOtherScope(null);
     };
 
+    const handleCancel = () => {
+        setSelectedScopes([]);
+        localStorage.removeItem('scopes');
+        onEmptyScopes(true);
+    }
+
     return (
         <div className="w-full flex flex-col gap-4">
             <TextInput
@@ -123,9 +129,12 @@ const ScopeSelector = ({ onEmptyScopes }: ScopeSelectorProps) => {
                     placeholder="Insert other scopes"
                     required
                 />
-                <div>
-                    <Button disabled={otherScope === null} onClick={handleNewScope}>
+                <div className="flex justify-center items-center gap-4">
+                    <Button color="gray" disabled={otherScope === null} onClick={handleNewScope}>
                         Add Scopes
+                    </Button>
+                    <Button color="gray" onClick={handleCancel}>
+                        Cancel
                     </Button>
                 </div>
             </div>
