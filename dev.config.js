@@ -6,7 +6,7 @@ const { log: logger } = console
 const { result: run } = concurrently(
     [
         {
-            command: 'pnpm dev',
+            command: 'vite',
             name: 'vite',
             prefixColor: 'blue',
         },

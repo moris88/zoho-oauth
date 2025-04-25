@@ -1,23 +1,24 @@
-import express from "express";
-import cors from "cors";
-import fetch from "node-fetch"; // per fare richieste
+/* eslint-disable no-console */
+import express from 'express'
+import cors from 'cors'
+import fetch from 'node-fetch' // per fare richieste
 
-const app = express();
-app.use(cors()); // abilita CORS per il tuo server
+const app = express()
+app.use(cors()) // abilita CORS per il tuo server
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
 // Crea un endpoint proxy per l'OAuth
-app.post("/api/oauth", async (req, res) => {
-  const body = req.body;
-  console.log(body);
+app.post('/api/oauth', async (req, res) => {
+  const body = req.body
+  console.log(body)
   try {
     const response = await fetch(
       `https://accounts.zoho.${body.location}/oauth/v2/token`,
       {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
           grant_type: body.grant_type,
           client_id: body.client_id,
@@ -28,134 +29,135 @@ app.post("/api/oauth", async (req, res) => {
       }
     )
       .then((res) => {
-        console.log("res status", res.status);
-        return getResponse(res);
+        console.log('res status', res.status)
+        return getResponse(res)
       })
       .catch((err) => {
-        console.log("ERROR:", err);
-        return { status: 500, error: "Internal Server Error" };
-      });
-    console.log(response);
+        console.log('ERROR:', err)
+        return { status: 500, error: 'Internal Server Error' }
+      })
+    console.log(response)
     if (response?.error) {
-      console.log("error", response.error);
-      res.status(response?.status || 403).json({ error: response.error });
-      return;
+      console.log('error', response.error)
+      res.status(response?.status || 403).json({ error: response.error })
+      return
     }
-    res.status(200).json(response);
+    res.status(200).json(response)
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.log(error)
+    res.status(500).json({ error: 'Internal Server Error' })
   }
-});
+})
 
-app.post("/api/request", async (req, res) => {
-  const body = req.body;
-  console.log(body);
+app.post('/api/request', async (req, res) => {
+  const body = req.body
+  console.log(body)
   try {
-    const access_token = await fetch(
+    const accessToken = await fetch(
       `https://accounts.zoho.${body.location}/oauth/v2/token?refresh_token=${body.refreshToken}&client_id=${body.client_id}&client_secret=${body.client_secret}&grant_type=refresh_token`,
       {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       }
     )
       .then((res) => {
-        console.log("fetch access token status", res.status);
-        return getResponse(res);
+        console.log('fetch access token status', res.status)
+        return getResponse(res)
       })
       .then((data) => {
         if (data?.error) {
-          console.log("error", data.error);
-          return { status: data?.status || 403, error: data.error };
+          console.log('error', data.error)
+          return { status: data?.status || 403, error: data.error }
         }
-        return data?.access_token || null;
+        return data?.access_token || null
       })
       .catch((err) => {
-        console.log("ERROR:", err);
-        return { status: 500, error: "Internal Server Error" };
-      });
-    console.log("access_token", access_token);
-    if (access_token) {
+        console.log('ERROR:', err)
+        return { status: 500, error: 'Internal Server Error' }
+      })
+    console.log('access_token', accessToken)
+    if (accessToken) {
       const options = {
         method: body.method,
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Zoho-oauthtoken ${access_token}`,
+          'Content-Type': 'application/json',
+          Authorization: `Zoho-oauthtoken ${accessToken}`,
         },
-      };
-      if (body.method !== "GET")
+      }
+      if (body.method !== 'GET')
         options.body = JSON.stringify({
           data: body.data,
-        });
+        })
       const response = await fetch(body.url, options)
         .then((res) => {
-          console.log("fetch status", res.status);
-          return getResponse(res);
+          console.log('fetch status', res.status)
+          return getResponse(res)
         })
         .catch((err) => {
-          console.log("ERROR:", err);
-          return { status: 500, error: "Internal Server Error" };
-        });
-      console.log(response);
+          console.log('ERROR:', err)
+          return { status: 500, error: 'Internal Server Error' }
+        })
+      console.log(response)
       if (response.error) {
-        console.log("error", response.error);
-        res.status(response.status).json({ error: response.error });
-        return;
+        console.log('error', response.error)
+        res.status(response.status).json({ error: response.error })
+        return
       }
-      res.status(200).json(response);
-    } else if (access_token?.error) {
-      console.log("error", access_token.error);
-      res.status(access_token.status).json({ error: access_token.error });
+      res.status(200).json(response)
+    } else if (accessToken?.error) {
+      console.log('error', accessToken.error)
+      res.status(accessToken.status).json({ error: accessToken.error })
     } else {
-      console.log("error");
-      res.status(403).json({ error: "Forbidden" });
+      console.log('error')
+      res.status(403).json({ error: 'Forbidden' })
     }
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.log(error)
+    res.status(500).json({ error: 'Internal Server Error' })
   }
-});
+})
 
-const PORT = 3001;
+
+const PORT = 3001
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+  console.log(`Server running on port ${PORT}`)
+})
 
 function getResponse(res) {
   if (res.status === 204) {
-    return { status: res.status, warning: "No Content" };
+    return { status: res.status, warning: 'No Content' }
   }
   if (res.status === 400) {
-    return { status: res.status, error: "Bad Request" };
+    return { status: res.status, error: 'Bad Request' }
   }
   if (res.status === 401) {
     return {
       status: res.status,
-      error: "Unauthorized",
-    };
+      error: 'Unauthorized',
+    }
   }
   if (res.status === 403) {
-    return { status: res.status, error: "Forbidden" };
+    return { status: res.status, error: 'Forbidden' }
   }
   if (res.status === 404) {
-    return { status: res.status, error: "Not Found" };
+    return { status: res.status, error: 'Not Found' }
   }
   if (res.status === 408) {
-    return { status: res.status, error: "Request Timeout" };
+    return { status: res.status, error: 'Request Timeout' }
   }
   if (res.status === 429) {
-    return { status: res.status, error: "Too Many Requests" };
+    return { status: res.status, error: 'Too Many Requests' }
   }
   if (res.status === 500) {
-    return { status: res.status, error: "Internal Server Error" };
+    return { status: res.status, error: 'Internal Server Error' }
   }
   if (res.status === 503) {
-    return { status: res.status, error: "Service Unavailable" };
+    return { status: res.status, error: 'Service Unavailable' }
   }
   if (res.status === 504) {
-    return { status: res.status, error: "Gateway Timeout" };
+    return { status: res.status, error: 'Gateway Timeout' }
   }
-  return res.json();
+  return res.json()
 }
