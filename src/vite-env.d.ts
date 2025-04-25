@@ -5,5 +5,5 @@ export interface ImportMetaEnv {
 }
 
 export interface ImportMeta {
-    env: ImportMetaEnv
+  env: ImportMetaEnv
 }

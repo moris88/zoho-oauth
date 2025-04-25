@@ -36,9 +36,9 @@ app.post("/api/oauth", async (req, res) => {
         return { status: 500, error: "Internal Server Error" };
       });
     console.log(response);
-    if (response.error) {
+    if (response?.error) {
       console.log("error", response.error);
-      res.status(response.status).json({ error: response.error });
+      res.status(response?.status || 403).json({ error: response.error });
       return;
     }
     res.status(200).json(response);
@@ -65,16 +65,16 @@ app.post("/api/request", async (req, res) => {
         console.log("fetch access token status", res.status);
         return getResponse(res);
       })
+      .then((data) => {
+        if (data?.error) {
+          console.log("error", data.error);
+          return { status: data?.status || 403, error: data.error };
+        }
+        return data?.access_token || null;
+      })
       .catch((err) => {
         console.log("ERROR:", err);
         return { status: 500, error: "Internal Server Error" };
-      })
-      .then((data) => {
-        if (data.error) {
-          console.log("error", data.error);
-          res.status(data.status).json({ error: data.error });
-        }
-        return data?.access_token || null;
       });
     console.log("access_token", access_token);
     if (access_token) {
@@ -124,38 +124,38 @@ app.listen(PORT, () => {
 });
 
 function getResponse(res) {
-    if (res.status === 204) {
-      return { status: res.status, warning: "No Content" };
-    }
-    if (res.status === 400) {
-      return { status: res.status, error: "Bad Request" };
-    }
-    if (res.status === 401) {
-      return {
-        status: res.status,
-        error: "Unauthorized",
-      };
-    }
-    if (res.status === 403) {
-      return { status: res.status, error: "Forbidden" };
-    }
-    if (res.status === 404) {
-      return { status: res.status, error: "Not Found" };
-    }
-    if (res.status === 408) {
-      return { status: res.status, error: "Request Timeout" };
-    }
-    if (res.status === 429) {
-      return { status: res.status, error: "Too Many Requests" };
-    }
-    if (res.status === 500) {
-      return { status: res.status, error: "Internal Server Error" };
-    }
-    if (res.status === 503) {
-      return { status: res.status, error: "Service Unavailable" };
-    }
-    if (res.status === 504) {
-      return { status: res.status, error: "Gateway Timeout" };
-    }
-    return res.json();
+  if (res.status === 204) {
+    return { status: res.status, warning: "No Content" };
+  }
+  if (res.status === 400) {
+    return { status: res.status, error: "Bad Request" };
+  }
+  if (res.status === 401) {
+    return {
+      status: res.status,
+      error: "Unauthorized",
+    };
+  }
+  if (res.status === 403) {
+    return { status: res.status, error: "Forbidden" };
+  }
+  if (res.status === 404) {
+    return { status: res.status, error: "Not Found" };
+  }
+  if (res.status === 408) {
+    return { status: res.status, error: "Request Timeout" };
+  }
+  if (res.status === 429) {
+    return { status: res.status, error: "Too Many Requests" };
+  }
+  if (res.status === 500) {
+    return { status: res.status, error: "Internal Server Error" };
+  }
+  if (res.status === 503) {
+    return { status: res.status, error: "Service Unavailable" };
+  }
+  if (res.status === 504) {
+    return { status: res.status, error: "Gateway Timeout" };
+  }
+  return res.json();
 }
