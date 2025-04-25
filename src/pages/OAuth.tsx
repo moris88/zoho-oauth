@@ -1,144 +1,209 @@
-import { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { Button, Select, Spinner, Textarea, TextInput } from 'flowbite-react';
-import { REDIRECT_URI, SERVER_URL } from '@/utils';
-import { CopyText } from '@/components';
+import { useActionState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Button, Select, Spinner, Textarea, TextInput, ClipboardWithIconText } from 'flowbite-react';
+import { actionGenerateToken, actionOAuth, BASE_URL_OAUTH, listDomains, REDIRECT_URI } from '@/utils';
+import { Step } from '@/components';
 
 const OAuth = () => {
     const [searchParams] = useSearchParams();
     const code = searchParams.get('code');
-    const [error, setError] = useState<string | null>(null);
-    const [response, setResponse] = useState<any | null>(null);
-    const [location, setLocation] = useState('com');
+
+    const [, formActionOauth, isPending] = useActionState(actionOAuth, {
+        base_url: null,
+        response_type: null,
+        clientId: null,
+        redirect_uri: null,
+        scopes: null,
+        accessType: null,
+        location: null,
+    })
+
+    const [{ response, error }, formActionToken, isLoadingToken] = useActionState(actionGenerateToken, {
+        clientId: null,
+        clientSecret: null,
+        locationDomain: null,
+        code: null,
+        redirect_uri: null,
+        grant_type: null,
+        response: null,
+        error: null,
+    })
 
     const scopes = localStorage.getItem('scopes');
+    const clientId = localStorage.getItem('client_id');
+    const clientSecret = localStorage.getItem('client_secret');
+    const locationDomain = localStorage.getItem('location_domain');
 
-    const oauth_url = `https://accounts.zoho.com/oauth/v2/auth?response_type=code&client_id=${localStorage.getItem('client_id')}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${JSON.parse(scopes || '[]').join(',')}&access_type=offline`;
-
-    useEffect(() => {
-        if (code) {
-            const fetchAccessToken = async () => {
-                try {
-                    const response = await fetch(`${SERVER_URL}/api/oauth`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            location: location,
-                            client_id: localStorage.getItem('client_id'),
-                            client_secret: localStorage.getItem('client_secret'),
-                            redirect_uri: REDIRECT_URI,
-                            code: code!,
-                        }),
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        setResponse(data);
-                        localStorage.setItem('refresh_token', data.refresh_token);
-                        localStorage.setItem('api_domain', data.api_domain);
-                    } else {
-                        console.error(response);
-                        setError(`Error fetching access token: ${response.statusText}`);
-                    }
-                } catch (error) {
-                    console.error(error);
-                    setError(`Error fetching access token: ${JSON.stringify(error)}`);
-                }
-            };
-            fetchAccessToken();
-        }
-    }, [code, location]);
-
-    const handlePrev = () => {
-        window.location.href = '/scope';
-    };
-
-    const handleReAuth = () => {
-        localStorage.clear();
+    if (!clientId) {
         window.location.href = '/';
-    };
+    }
+    if (!scopes) {
+        window.location.href = '/scope';
+    }
+
+    if (isPending || isLoadingToken) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <Spinner
+                    aria-label="Fetching data..."
+                />
+            </div>
+        )
+    }
+
+    if (error) {
+        return (
+            <>
+                <pre>{JSON.stringify(error, null, 3)}</pre>
+                <Button className="mt-4" color="failure" onClick={() => {
+                    localStorage.removeItem('location_domain');
+                    window.location.href = '/'
+                }}>
+                    Re-authenticate
+                </Button>
+            </>
+        )
+    }
 
     return (
         <div className="flex flex-col items-center p-5 bg-gray-100 min-h-screen">
-            <h1 className="text-2xl font-bold mb-4">OAuth Authentication</h1>
-            <div className="w-full max-w-lg bg-white p-6 rounded-lg shadow-md">
-                {!code && scopes && (
-                    <div className="w-full flex flex-col justify-center items-center gap-4">
-                        <Textarea
-                            readOnly
-                            value={oauth_url}
-                            rows={8}
-                        />
-                        <div className='w-full flex justify-center items-center gap-4'>
-                            <Select id="location" className="mt-4" value={location} onChange={(e) => setLocation(e.target.value)}>
-                                <option value={'com'}>COM</option>
-                                <option value={'us'}>US</option>
-                            </Select>
-                            <Link to={oauth_url} className="block">
-                                <Button className="mt-4" disabled={!code && scopes.length === 0}>
-                                    Authenticate
+            <div className="w-full bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center gap-4">
+                <h1 className="text-2xl font-bold mb-4 text-center">OAuth Authentication</h1>
+                <div className='lg:w-1/2 w-full'>
+                    {(!code && !locationDomain) ? (
+                        <form action={formActionOauth} className="w-full flex flex-col justify-center items-center gap-4">
+                            <Step index={1} />
+                            <div className="w-full flex items-center justify-between gap-4">
+                                <span className='min-w-36 max-w-36'>{'Base url'}: </span>
+                                <TextInput id="base_url" name="base_url" className='w-full' type="text" readOnly value={BASE_URL_OAUTH} required />
+                            </div>
+                            <div className="w-full flex items-center justify-between gap-4">
+                                <span className='min-w-36 max-w-36'>{'Response type'}: </span>
+                                <TextInput id="response_type" name="response_type" className='w-full' type="text" readOnly value={'code'} required />
+                            </div>
+                            <div className="w-full flex items-center justify-between gap-4">
+                                <span className='min-w-36 max-w-36'>{'Client id'}: </span>
+                                <TextInput id="client_id" name="client_id" className='w-full' type="text" readOnly value={clientId || ''} required />
+                            </div>
+                            <div className="w-full flex items-center justify-between gap-4">
+                                <span className='min-w-36 max-w-36'>{'Redirect uri'}: </span>
+                                <TextInput id="redirect_uri" name="redirect_uri" className='w-full' type="text" readOnly value={REDIRECT_URI} required />
+                            </div>
+                            <div className="w-full flex items-center justify-between gap-4">
+                                <span className='min-w-36 max-w-36'>{'Scopes'}: </span>
+                                <TextInput id="scopes" name="scopes" className='w-full' type="text" readOnly value={scopes || ''} required />
+                            </div>
+
+                            <div className="w-full flex items-center gap-4">
+                                <label htmlFor='access_type' className="min-w-36 max-w-36 text-sm font-medium text-gray-700">
+                                    Access Type:
+                                </label>
+                                <Select id="access_type" name="access_type" className="w-full" defaultValue={'offline'} required>
+                                    <option value={'offline'}>offline</option>
+                                    <option value={'online'}>online</option>
+                                </Select>
+                            </div>
+
+                            <div className="w-full flex items-center gap-4">
+                                <label htmlFor='location_domain' className="min-w-36 max-w-36 text-sm font-medium text-gray-700">
+                                    Location:
+                                </label>
+                                <Select id="location_domain" name="location_domain" className="w-full" defaultValue="com" required>
+                                    {listDomains.map((domain) => (
+                                        <option key={domain} value={domain}>
+                                            {domain.toUpperCase()}
+                                        </option>
+                                    ))}
+                                </Select>
+                            </div>
+
+                            <hr className='w-full' />
+
+                            <div className='w-full flex justify-center items-center gap-4'>
+                                <Button type="button" onClick={() => window.location.href = "/scope"} className="mt-4" color="light">
+                                    Previous
                                 </Button>
-                            </Link>
-                            <Button onClick={handlePrev} className="mt-4" color="gray">
-                                Previous
-                            </Button>
-                        </div>
-                    </div>
-                )}
-                {!error && code && (
-                    <div className="w-full flex flex-col justify-center items-center gap-4">
-                        <div className="w-full flex flex-col gap-4">
-                            <label className="block mb-2 text-sm font-medium text-gray-700">
-                                Code:
-                            </label>
-                            <TextInput
-                                readOnly
-                                value={code}
-                            />
-                        </div>
-                        <div className="w-full flex flex-col gap-4 justify-center items-center">
-                            {!response ? (
-                                <>
-                                    <Spinner
-                                        aria-label="Fetching access token..."
-                                        className="mr-2"
-                                    />
-                                    <p>Fetching Access Token...</p>
-                                </>
-                            ) : (
+                                <Button type="submit" className="mt-4" disabled={isPending}>
+                                    {isPending ? <Spinner aria-label="Loading..." /> : 'Authenticate'}
+                                </Button>
+                            </div>
+                        </form>
+                    ) : (code) ? (
+                        <form action={formActionToken} className="w-full flex flex-col justify-center items-center gap-4">
+                            <Step index={2} />
+                            <div className="w-full flex items-center justify-between gap-4">
+                                <span className='min-w-36 max-w-36'>{'Code'}: </span>
+                                <TextInput
+                                    readOnly
+                                    id="code"
+                                    name="code"
+                                    type="text"
+                                    className='w-full'
+                                    value={code || ''}
+                                    required
+                                />
+                            </div>
+                            <div className="w-full flex items-center justify-between gap-4">
+                                <span className='min-w-36 max-w-36'>{'Client id'}: </span>
+                                <TextInput id="client_id" name="client_id" className='w-full' type="text" readOnly value={clientId || ''} required />
+                            </div>
+                            <div className="w-full flex items-center justify-between gap-4">
+                                <span className='min-w-36 max-w-36'>{'Client secret'}: </span>
+                                <TextInput id="client_secret" name="client_secret" className='w-full' type="text" readOnly value={clientSecret || ''} required />
+                            </div>
+                            <div className="w-full flex items-center justify-between gap-4">
+                                <span className='min-w-36 max-w-36'>{'Location'}: </span>
+                                <TextInput id="location_domain" name="location_domain" className='w-full' type="text" readOnly value={locationDomain || ''} required />
+                            </div>
+                            <div className="w-full flex items-center justify-between gap-4">
+                                <span className='min-w-36 max-w-36'>{'Redirect uri'}: </span>
+                                <TextInput id="redirect_uri" name="redirect_uri" className='w-full' type="text" readOnly value={REDIRECT_URI} required />
+                            </div>
+                            <div className="w-full flex items-center justify-between gap-4">
+                                <span className='min-w-36 max-w-36'>{'Grant type'}: </span>
+                                <TextInput id="grant_type" name="grant_type" className='w-full' type="text" readOnly value={'authorization_code'} required />
+                            </div>
+
+                            <hr className='w-full' />
+
+                            {!response && (
+                                <div className='w-full flex justify-center items-center gap-4'>
+                                    <Button type="button" color="failure" onClick={() => window.location.href = '/'}>
+                                        Re-authenticate
+                                    </Button>
+                                    <Button type="submit">
+                                        Generate Token
+                                    </Button>
+                                </div>
+                            )}
+
+                            {response && (<div className="w-full flex flex-col gap-4 justify-center items-center">
+
                                 <div className="w-full flex flex-col gap-4 justify-center items-center">
-                                    <Textarea
-                                        value={JSON.stringify(response, null, 2)}
-                                        readOnly
-                                        rows={15}
-                                    />
-                                    <div className="w-full flex justify-center items-center gap-4">
-                                        <CopyText textToCopy={JSON.stringify(response)} />
-                                        <Link to="/request" className="block">
-                                            <Button>
-                                                Next
-                                            </Button>
-                                        </Link>
-                                        <Button color="failure" onClick={handleReAuth}>
+                                    <div className='w-full flex flex-col gap-4'>
+                                        <label htmlFor="response">Response:</label>
+                                        <Textarea
+                                            id="response"
+                                            name="response"
+                                            value={JSON.stringify(response, null, 2)}
+                                            readOnly
+                                            rows={15}
+                                        />
+                                    </div>
+                                    <div className="relative w-full flex justify-center items-center gap-4">
+                                            <ClipboardWithIconText valueToCopy={JSON.stringify(response)} />
+                                        <Button type="button" color="failure" onClick={() => window.location.href = '/'}>
                                             Re-authenticate
+                                        </Button>
+                                        <Button type="button" onClick={() => window.location.href = "/request"}>
+                                            Next
                                         </Button>
                                     </div>
                                 </div>
-                            )}
-                        </div>
-                    </div>
-                )}
-                {error && (
-                    <div className="w-full flex flex-col justify-center items-center gap-4">
-                        <Textarea
-                            value={JSON.stringify(error, null, 2)}
-                            readOnly
-                            rows={15}
-                        />
-                        <Button className="mt-4" color="failure" onClick={handleReAuth}>
-                            Re-authenticate
-                        </Button>
-                    </div>
-                )}
+                            </div>)}
+                        </form>
+                    ) : <></>}
+                </div>
             </div>
         </div>
     );

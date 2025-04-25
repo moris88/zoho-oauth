@@ -1,82 +1,51 @@
 import { useEffect, useState } from 'react';
-import { Button, Checkbox, TextInput } from 'flowbite-react';
+import { Checkbox, TextInput } from 'flowbite-react';
+import { MdSearch } from "react-icons/md";
 import zohoScopes from '@/assets/zoho_scopes.json';
 
 interface ScopeSelectorProps {
     onEmptyScopes: (isEmpty: boolean) => void;
+    onChangeScopes: (scopes: string[]) => void;
 }
 
-const ScopeSelector = ({ onEmptyScopes }: ScopeSelectorProps) => {
+const ScopeSelector = ({ onEmptyScopes, onChangeScopes }: ScopeSelectorProps) => {
     const [selectedScopes, setSelectedScopes] = useState<string[]>([]);
-    const [otherScope, setOtherScope] = useState<string | null>(null);
     const [searchScope, setSearchScope] = useState<string | null>(null);
 
     useEffect(() => {
         const storedScopes = localStorage.getItem('scopes');
         if (storedScopes) {
-            setSelectedScopes(JSON.parse(storedScopes || '[]'));
+            setSelectedScopes(storedScopes.split(','));
+            onChangeScopes(storedScopes.split(','));
+            onEmptyScopes(storedScopes.split(',').length === 0);
         }
-    }, []);
+    }, [onChangeScopes, onEmptyScopes]);
 
     // Funzione per aggiornare gli scope selezionati
     const handleScopeChange = (scope: string) => {
         setSelectedScopes((prev) => {
             if (prev.includes(scope)) {
                 const newScopes = prev.filter((s) => s !== scope);
-                localStorage.setItem('scopes', JSON.stringify(newScopes));
+                onChangeScopes(newScopes);
                 onEmptyScopes(newScopes.length === 0);
                 return newScopes;
             } else {
                 const newScopes = [...prev, scope];
-                localStorage.setItem('scopes', JSON.stringify(newScopes));
+                onChangeScopes(newScopes);
                 onEmptyScopes(newScopes.length === 0);
                 return newScopes;
             }
         });
     };
 
-    const handleNewScope = () => {
-        if (!otherScope) {
-            return;
-        }
-        const otherScopes: string[] = [];
-        if (otherScope.includes(',')) {
-            const scopes = otherScope.split(',');
-            if (scopes.some(scope => selectedScopes.includes(scope))) {
-                alert('One or more scopes have already been selected!');
-                setOtherScope(null);
-                return;
-            }
-            otherScopes.push(...scopes);
-        } else {
-            if (selectedScopes.includes(otherScope)) {
-                alert('This scope has already been selected!');
-                setOtherScope(null);
-                return;
-            }
-            otherScopes.push(otherScope);
-        }
-        otherScopes.forEach((scope) => {
-            handleScopeChange(scope);
-        });
-        setOtherScope(null);
-    };
-
-    const handleCancel = () => {
-        setSelectedScopes([]);
-        localStorage.removeItem('scopes');
-        onEmptyScopes(true);
-    }
-
     return (
         <div className="w-full flex flex-col gap-4">
             <TextInput
-                id="url"
                 type="text"
+                icon={MdSearch}
                 value={searchScope || ''}
                 onChange={(e) => setSearchScope(e.target.value)}
                 placeholder="Search scope"
-                required
             />
             {/* Elenco scopes */}
             <div className="max-h-72 overflow-y-auto p-1">
@@ -116,27 +85,6 @@ const ScopeSelector = ({ onEmptyScopes }: ScopeSelectorProps) => {
                             </div>
                         )
                     })}
-            </div>
-            <div className="flex flex-col gap-4">
-                <label className="block text-sm font-medium text-gray-700" htmlFor="client_secret">
-                    Other Scopes (comma separated)
-                </label>
-                <TextInput
-                    id="url"
-                    type="text"
-                    value={otherScope || ''}
-                    onChange={(e) => setOtherScope(e.target.value)}
-                    placeholder="Insert other scopes"
-                    required
-                />
-                <div className="flex justify-center items-center gap-4">
-                    <Button color="gray" disabled={otherScope === null} onClick={handleNewScope}>
-                        Add Scopes
-                    </Button>
-                    <Button color="gray" onClick={handleCancel}>
-                        Cancel
-                    </Button>
-                </div>
             </div>
         </div>
     );

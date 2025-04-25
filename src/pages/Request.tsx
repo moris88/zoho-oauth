@@ -1,64 +1,36 @@
-import { useState } from 'react'
-import { Button, Select, Textarea, TextInput } from 'flowbite-react';
-import { methodOptions, SERVER_URL } from '@/utils';
+import { useActionState, useState } from 'react'
+import { Button, Select, Spinner, Textarea, TextInput, ClipboardWithIconText } from 'flowbite-react';
+import { actionRequest, methodOptions } from '@/utils';
 import { FaRegTrashCan } from "react-icons/fa6";
+import { Link } from 'react-router-dom';
+import { Step } from '@/components';
 
 const Request = () => {
+    const data = localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data') || '') : null;
+    const hasToken = localStorage.getItem('has_token') !== null;
+    const [{ response }, formAction, isPending] = useActionState(actionRequest, {
+        response: '',
+        method: null,
+        baseUrl: null,
+        endpoint: null,
+        body: null,
+        headers: null,
+        params: null,
+    })
     const [method, setMethod] = useState('GET');
-    const [url, setUrl] = useState<URL | null>(null);
+    const [baseURL, setBaseURL] = useState<string>(data?.api_domain || '');
+    const [endpoint, setEndpoint] = useState<string>("");
     const [body, setBody] = useState<BodyInit | null>(null);
-    const [response, setResponse] = useState('');
     const [params, setParams] = useState<{ key: string; value: string }[]>([]);
     const [headers, setHeaders] = useState([{ key: 'Content-Type', value: 'application/json' }]);
-
-    const buildUrlWithParams = (baseUrl: string, params: { key: string; value: string }[]) => {
-        const urlObj = new URL(baseUrl);
-        params.forEach(({ key, value }) => {
-            if (key) urlObj.searchParams.append(key, value);
-        });
-        return urlObj.toString();
-    };
-
-    // Funzione per costruire gli headers
-    const buildHeaders = (headersArray: { key: string; value: string }[]) => {
-        const headersObj: Record<string, string> = {};
-        headersArray.forEach(({ key, value }) => {
-            if (key) headersObj[key] = value;
-        });
-        return headersObj;
-    };
-
-    const handleFetch = async () => {
-        console.log('fetching', method, url, body);
-        try {
-            if (url) {
-                const fullUrl = buildUrlWithParams(url.toString(), params);
-                const res = await fetch(`${SERVER_URL}/api/request`, {
-                    method: 'POST',
-                    headers: {
-                        ...buildHeaders(headers),
-                    },
-                    body: JSON.stringify({
-                        method,
-                        url: fullUrl,
-                        location: localStorage.getItem('location'),
-                        refreshToken: localStorage.getItem('refresh_token'),
-                        client_id: localStorage.getItem('client_id'),
-                        client_secret: localStorage.getItem('client_secret'),
-                        data: body,
-                    }),
-                });
-                const data = await res.json();
-                setResponse(JSON.stringify(data, null, 2));
-            }
-        } catch (error) {
-            setResponse(`Error: ${JSON.stringify(error, null, 2)}`);
-        }
-    };
+    const [loading, setLoading] = useState(false);
 
     const handleLogout = () => {
-        localStorage.clear();
-        window.location.href = '/';
+        setLoading(true);
+        setTimeout(() => {
+            localStorage.clear();
+            setLoading(false);
+        }, 5000);
     };
 
     // Funzioni per i parametri
@@ -79,139 +51,212 @@ const Request = () => {
         setHeaders(updatedHeaders);
     };
 
+    if (!hasToken) {
+        window.location.href = '/';
+    }
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <Spinner
+                    aria-label="Logout..."
+                />
+            </div>
+        )
+    }
+
     return (
         <div className="p-5 bg-gray-100 min-h-screen">
             <div className="flex flex-col gap-4 justify-center items-center p-4 rounded-lg shadow-md bg-white">
-                <h1 className="text-2xl font-bold mb-4">Fetch Compiler</h1>
-                <hr className="w-full" />
-                <p className="!italic text-start">API Domain: {localStorage.getItem('api_domain')}</p>
-                <div className="w-full flex flex-col">
+                <form action={formAction} className='w-full flex flex-col gap-4 items-center justify-center'>
+                    <Step index={3} />
+                    <h1 className="text-2xl font-bold mb-4">Fetch Compiler</h1>
+                    <hr className="w-full" />
+                    <div>
+                        <Link to="https://www.zoho.com/crm/developer/docs/api/" target="_blank" className="block">
+                            <Button outline type="button">
+                                Documentation Zoho API
+                            </Button>
+                        </Link>
+                    </div>
+                    <div className="w-full flex flex-col">
 
-                    {/* Selezione Metodo */}
-                    <div className="mb-4">
-                        <label className="block mb-2 text-sm font-medium text-gray-700">
-                            Method:
-                        </label>
-                        <Select
-                            value={method}
-                            onChange={(e) => setMethod(e.target.value)}
-                            className="w-full"
-                        >
-                            {methodOptions.map((method) => (
-                                <option key={method} value={method}>
-                                    {method}
-                                </option>
+                        {/* Selezione Metodo */}
+                        <div className="mb-4">
+                            <label className="block mb-2 text-sm font-medium text-gray-700">
+                                Method:
+                            </label>
+                            <Select
+                                value={method}
+                                onChange={(e) => setMethod(e.target.value)}
+                                className="w-full"
+                                id="method"
+                                name="method"
+                                disabled={isPending}
+                                required
+                            >
+                                {methodOptions.map((method) => (
+                                    <option key={method} value={method}>
+                                        {method}
+                                    </option>
+                                ))}
+                            </Select>
+                        </div>
+
+                        {/* URL Textarea */}
+                        <div className="mb-4">
+                            <label className="block mb-2 text-sm font-medium text-gray-700">
+                                BASE URL:
+                            </label>
+                            <TextInput
+                                type="text"
+                                id="baseUrl"
+                                name="baseUrl"
+                                disabled={isPending}
+                                placeholder="Enter the BASE URL"
+                                value={baseURL}
+                                onChange={(e) => setBaseURL(e.target.value)}
+                                required
+                            />
+                        </div>
+
+                        {/* URL Textarea */}
+                        <div className="mb-4">
+                            <label className="block mb-2 text-sm font-medium text-gray-700">
+                                ENDPOINT:
+                            </label>
+                            <TextInput
+                                id="endpoint"
+                                name="endpoint"
+                                type="text"
+                                disabled={isPending}
+                                placeholder="Enter the request ENDPOINT URL"
+                                value={endpoint}
+                                onChange={(e) => setEndpoint(e.target.value)}
+                                required
+                            />
+                        </div>
+
+                    </div>
+
+                    <hr className="w-full" />
+
+                    <div className="w-full flex flex-col md:flex-row gap-2">
+                        {/* Parameters */}
+                        <div className="mb-4 md:w-1/2 w-full flex flex-col justify-start items-center">
+                            <label className="block mb-2 text-sm font-medium text-gray-700">Parameters:</label>
+                            <Textarea
+                                className="w-full mb-2 hidden"
+                                id="params"
+                                name="params"
+                                readOnly
+                                value={params.map(param => `${param.key}=${param.value}`).join('&')}
+                            />
+                            {params.map((param, index) => (
+                                <div key={index} className="flex gap-2 mb-2">
+                                    <TextInput
+                                        disabled={isPending}
+                                        placeholder="Key"
+                                        value={param.key}
+                                        onChange={(e) => handleParamChange(index, 'key', e.target.value)}
+                                    />
+                                    <TextInput
+                                        disabled={isPending}
+                                        placeholder="Value"
+                                        value={param.value}
+                                        onChange={(e) => handleParamChange(index, 'value', e.target.value)}
+                                    />
+                                    <Button type="button" color="gray" onClick={() => handleRemoveParam(index)}>
+                                        <FaRegTrashCan className="w-4 h-4" />
+                                    </Button>
+                                </div>
                             ))}
-                        </Select>
+                            <Button type="button" disabled={isPending} onClick={handleAddParam}>+ Add Parameter</Button>
+                        </div>
+                        {/* Headers */}
+                        <div className="mb-4 md:w-1/2 w-full flex flex-col justify-start items-center">
+                            <label className="block mb-2 text-sm font-medium text-gray-700">Headers:</label>
+                            <Textarea
+                                className="w-full mb-2 hidden"
+                                id="headers"
+                                name="headers"
+                                readOnly
+                                value={JSON.stringify(headers)}
+                            />
+                            {headers.map((header, index) => (
+                                <div key={index} className="flex gap-2 mb-2">
+                                    <TextInput
+                                        disabled={isPending}
+                                        placeholder="Header Key"
+                                        value={header.key}
+                                        onChange={(e) => handleHeaderChange(index, 'key', e.target.value)}
+                                    />
+                                    <TextInput
+                                        disabled={isPending}
+                                        placeholder="Header Value"
+                                        value={header.value}
+                                        onChange={(e) => handleHeaderChange(index, 'value', e.target.value)}
+                                    />
+                                    <Button color="gray" onClick={() => handleRemoveHeader(index)}>
+                                        <FaRegTrashCan className="w-4 h-4" />
+                                    </Button>
+                                </div>
+                            ))}
+                            <Button type="button" disabled={isPending} onClick={handleAddHeader}>+ Add Header</Button>
+                        </div>
+
                     </div>
 
-                    {/* URL Textarea */}
-                    <div className="mb-4">
-                        <label className="block mb-2 text-sm font-medium text-gray-700">
-                            URL:
-                        </label>
-                        <Textarea
-                            placeholder="Enter the request URL"
-                            value={url?.href}
-                            onChange={(e) => setUrl(new URL(e.target.value))}
-                            rows={3}
-                        />
-                    </div>
-                </div>
+                    <hr className="w-full" />
 
-                <hr className="w-full" />
+                    <div className="w-full flex flex-col">
 
-                <div className="w-full flex flex-col md:flex-row">
-                    {/* Parameters */}
-                    <div className="mb-4 md:w-1/2 w-full flex flex-col justify-center items-center">
-                        <label className="block mb-2 text-sm font-medium text-gray-700">Parameters:</label>
-                        {params.map((param, index) => (
-                            <div key={index} className="flex gap-2 mb-2">
-                                <TextInput
-                                    placeholder="Key"
-                                    value={param.key}
-                                    onChange={(e) => handleParamChange(index, 'key', e.target.value)}
-                                />
-                                <TextInput
-                                    placeholder="Value"
-                                    value={param.value}
-                                    onChange={(e) => handleParamChange(index, 'value', e.target.value)}
-                                />
-                                <Button color="gray" onClick={() => handleRemoveParam(index)}>
-                                    <FaRegTrashCan className="w-4 h-4" />
-                                </Button>
-                            </div>
-                        ))}
-                        <Button onClick={handleAddParam}>+ Add Parameter</Button>
-                    </div>
-                    {/* Headers */}
-                    <div className="mb-4 md:w-1/2 w-full flex flex-col justify-center items-center">
-                        <label className="block mb-2 text-sm font-medium text-gray-700">Headers:</label>
-                        {headers.map((header, index) => (
-                            <div key={index} className="flex gap-2 mb-2">
-                                <TextInput
-                                    placeholder="Header Key"
-                                    value={header.key}
-                                    onChange={(e) => handleHeaderChange(index, 'key', e.target.value)}
-                                />
-                                <TextInput
-                                    placeholder="Header Value"
-                                    value={header.value}
-                                    onChange={(e) => handleHeaderChange(index, 'value', e.target.value)}
-                                />
-                                <Button color="gray" onClick={() => handleRemoveHeader(index)}>
-                                    <FaRegTrashCan className="w-4 h-4" />
-                                </Button>
-                            </div>
-                        ))}
-                        <Button onClick={handleAddHeader}>+ Add Header</Button>
-                    </div>
-
-                </div>
-
-                <hr className="w-full" />
-
-                <div className="w-full flex flex-col">
-
-                    {/* Body JSON Textarea */}
-                    {method !== 'GET' && (
+                        {/* Body JSON Textarea */}
                         <div className="mb-4">
                             <label className="block mb-2 text-sm font-medium text-gray-700">
                                 Body (JSON):
                             </label>
                             <Textarea
+                                id="body"
+                                name="body"
+                                disabled={method === 'GET' || isPending}
+                                required={method !== 'GET'}
                                 placeholder='{"key": "value"}'
                                 value={body?.toString() ?? ''}
                                 onChange={(e) => setBody(e.target.value)}
                                 rows={6}
                             />
                         </div>
-                    )}
 
-                </div>
-
-                <hr className="w-full" />
-
-                <div className='w-full md:w-1/2'>
-                    {/* Fetch Button */}
-                    <div className="flex flex-col md:flex-row gap-4">
-                        <Button onClick={handleFetch} className="w-full" disabled={!url}>
-                            Send Request
-                        </Button>
-                        <Button color="failure" onClick={handleLogout} className="w-full">
-                            Logout
-                        </Button>
                     </div>
-                </div>
+
+                    <hr className="w-full" />
+
+                    <div className='w-full md:w-1/2'>
+                        {/* Fetch Button */}
+                        <div className="flex flex-col md:flex-row gap-4">
+                            <Button type="submit" className="w-full" disabled={isPending}>
+                                {isPending ? <Spinner aria-label="Loading..." /> : 'Send Request'}
+                            </Button>
+                            <Button type="button" color="failure" onClick={handleLogout} className="w-full" disabled={isPending}>
+                                Logout
+                            </Button>
+                        </div>
+                    </div>
+
+                </form>
 
                 <hr className="w-full" />
 
                 <div className="w-full flex flex-col">
 
                     {/* Response */}
-                    <label className="block mb-2 text-sm font-medium text-gray-700">
-                        Response:
-                    </label>
+                    <div className='relative flex gap-2 items-center justify-between mb-4'>
+                        <label className="block mb-2 text-sm font-medium text-gray-700">
+                            Response:
+                        </label>
+                        <ClipboardWithIconText valueToCopy={JSON.stringify(response)} />
+                    </div>
                     <Textarea
                         className='w-full'
                         placeholder='Response will be shown here'
