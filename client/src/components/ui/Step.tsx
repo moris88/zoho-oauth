@@ -28,7 +28,7 @@ const titles = [
   'Requesting Data',
 ]
 
-function Step({ index }: StepProps) {
+function Step({ index }: Readonly<StepProps>) {
   React.useEffect(() => {
     const svgElements = document.querySelectorAll('svg')
     svgElements.forEach((svgElement, i) => {
@@ -36,9 +36,9 @@ function Step({ index }: StepProps) {
       svgElement.classList.remove('h-3', 'w-3')
       if (i <= index) {
         svgElement.classList.add('text-white')
-        svgElement.parentElement?.classList.add('bg-green-500')
+        svgElement.parentElement?.classList.add('bg-green-800')
       } else {
-        svgElement.parentElement?.classList.add('bg-white')
+        svgElement.parentElement?.classList.add('bg-gray-800')
       }
     })
   }, [index])
@@ -52,7 +52,7 @@ function Step({ index }: StepProps) {
           />
           <TimelineContent>
             <TimelineTitle>
-              <span className={i === index + 1 ? 'border-b border-black' : ''}>
+              <span className={i === index + 1 ? 'border-b border-white' : ''}>
                 {titles[i]}
               </span>
             </TimelineTitle>

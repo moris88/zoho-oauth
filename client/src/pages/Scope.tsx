@@ -31,10 +31,10 @@ function Scope() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-5">
+    <div className="min-h-screen p-5">
       <form
         action={formAction}
-        className="flex w-full flex-col items-center justify-center gap-4 rounded-lg bg-white p-4 shadow-md"
+        className="flex w-full flex-col items-center justify-center gap-4 rounded-lg bg-gray-800 p-4 shadow-md"
       >
         <Step index={0} />
         <h1 className="mb-4 text-3xl font-bold">Select Scopes</h1>
@@ -56,7 +56,7 @@ function Scope() {
 
         <div className="w-full lg:w-1/2">
           <label
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-200"
             htmlFor="scopes"
           >
             List Scopes
@@ -74,13 +74,17 @@ function Scope() {
 
         <div className="flex w-full items-center justify-center gap-4">
           <Button
-            color="gray"
+            color="secondary"
             type="button"
             onClick={() => (window.location.href = '/')}
           >
             Previous
           </Button>
-          <Button disabled={emptyScopes || isPending} type="submit">
+          <Button
+            color="primary"
+            disabled={emptyScopes || isPending}
+            type="submit"
+          >
             Next
           </Button>
         </div>
