@@ -5,7 +5,7 @@ import {
   Spinner,
   Textarea,
   TextInput,
-  ClipboardWithIconText,
+  ClipboardWithIcon,
 } from 'flowbite-react'
 import { actionRequest, methodOptions } from '@/utils'
 import { FaRegTrashCan } from 'react-icons/fa6'
@@ -90,8 +90,8 @@ function Request() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-5">
-      <div className="flex flex-col items-center justify-center gap-4 rounded-lg bg-white p-4 shadow-md">
+    <div className="min-h-screen p-5">
+      <div className="flex flex-col items-center justify-center gap-4 rounded-lg bg-gray-800 p-4 shadow-md">
         <form
           action={formAction}
           className="flex w-full flex-col items-center justify-center gap-4"
@@ -105,7 +105,7 @@ function Request() {
               target="_blank"
               to="https://www.zoho.com/crm/developer/docs/api/"
             >
-              <Button outline type="button">
+              <Button color="secondary" type="button">
                 Documentation Zoho API
               </Button>
             </Link>
@@ -113,7 +113,7 @@ function Request() {
           <div className="flex w-full flex-col">
             {/* Selezione Metodo */}
             <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-gray-700">
+              <label className="mb-2 block text-sm font-medium text-gray-200">
                 Method:
               </label>
               <Select
@@ -135,7 +135,7 @@ function Request() {
 
             {/* URL Textarea */}
             <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-gray-700">
+              <label className="mb-2 block text-sm font-medium text-gray-200">
                 BASE URL:
               </label>
               <TextInput
@@ -152,7 +152,7 @@ function Request() {
 
             {/* URL Textarea */}
             <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-gray-700">
+              <label className="mb-2 block text-sm font-medium text-gray-200">
                 ENDPOINT:
               </label>
               <TextInput
@@ -173,7 +173,7 @@ function Request() {
           <div className="flex w-full flex-col gap-2 md:flex-row">
             {/* Parameters */}
             <div className="mb-4 flex w-full flex-col items-center justify-start md:w-1/2">
-              <label className="mb-2 block text-sm font-medium text-gray-700">
+              <label className="mb-2 block text-sm font-medium text-gray-200">
                 Parameters:
               </label>
               <Textarea
@@ -204,7 +204,7 @@ function Request() {
                     }
                   />
                   <Button
-                    color="gray"
+                    color="secondary"
                     type="button"
                     onClick={() => handleRemoveParam(index)}
                   >
@@ -213,6 +213,7 @@ function Request() {
                 </div>
               ))}
               <Button
+                color="primary"
                 disabled={isPending}
                 type="button"
                 onClick={handleAddParam}
@@ -222,7 +223,7 @@ function Request() {
             </div>
             {/* Headers */}
             <div className="mb-4 flex w-full flex-col items-center justify-start md:w-1/2">
-              <label className="mb-2 block text-sm font-medium text-gray-700">
+              <label className="mb-2 block text-sm font-medium text-gray-200">
                 Headers:
               </label>
               <Textarea
@@ -251,7 +252,7 @@ function Request() {
                     }
                   />
                   <Button
-                    color="gray"
+                    color="secondary"
                     onClick={() => handleRemoveHeader(index)}
                   >
                     <FaRegTrashCan className="h-4 w-4" />
@@ -259,6 +260,7 @@ function Request() {
                 </div>
               ))}
               <Button
+                color="primary"
                 disabled={isPending}
                 type="button"
                 onClick={handleAddHeader}
@@ -273,7 +275,7 @@ function Request() {
           <div className="flex w-full flex-col">
             {/* Body JSON Textarea */}
             <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-gray-700">
+              <label className="mb-2 block text-sm font-medium text-gray-200">
                 Body (JSON):
               </label>
               <Textarea
@@ -294,7 +296,12 @@ function Request() {
           <div className="w-full md:w-1/2">
             {/* Fetch Button */}
             <div className="flex flex-col gap-4 md:flex-row">
-              <Button className="w-full" disabled={isPending} type="submit">
+              <Button
+                className="w-full"
+                color="primary"
+                disabled={isPending}
+                type="submit"
+              >
                 {isPending ? (
                   <Spinner aria-label="Loading..." />
                 ) : (
@@ -319,10 +326,10 @@ function Request() {
         <div className="flex w-full flex-col">
           {/* Response */}
           <div className="relative mb-4 flex items-center justify-between gap-2">
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label className="mb-2 block text-sm font-medium text-gray-200">
               Response:
             </label>
-            <ClipboardWithIconText valueToCopy={JSON.stringify(response)} />
+            <ClipboardWithIcon valueToCopy={JSON.stringify(response)} />
           </div>
           <Textarea
             readOnly

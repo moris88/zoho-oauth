@@ -6,7 +6,7 @@ import {
   Spinner,
   Textarea,
   TextInput,
-  ClipboardWithIconText,
+  ClipboardWithIcon,
 } from 'flowbite-react'
 import {
   actionGenerateToken,
@@ -82,8 +82,8 @@ function OAuth() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-gray-100 p-5">
-      <div className="flex w-full flex-col items-center justify-center gap-4 rounded-lg bg-white p-6 shadow-md">
+    <div className="flex min-h-screen flex-col items-center p-5">
+      <div className="flex w-full flex-col items-center justify-center gap-4 rounded-lg bg-gray-800 p-6 shadow-md">
         <h1 className="mb-4 text-center text-2xl font-bold">
           OAuth Authentication
         </h1>
@@ -95,7 +95,7 @@ function OAuth() {
             <Step index={1} />
             <div className="flex w-full flex-col items-center justify-center gap-4 lg:w-1/2">
               <div className="flex w-full items-center justify-between gap-4">
-                <span className="min-w-36 max-w-36">{'Base url'}: </span>
+                <span className="max-w-36 min-w-36">{'Base url'}: </span>
                 <TextInput
                   readOnly
                   required
@@ -107,7 +107,7 @@ function OAuth() {
                 />
               </div>
               <div className="flex w-full items-center justify-between gap-4">
-                <span className="min-w-36 max-w-36">{'Response type'}: </span>
+                <span className="max-w-36 min-w-36">{'Response type'}: </span>
                 <TextInput
                   readOnly
                   required
@@ -119,7 +119,7 @@ function OAuth() {
                 />
               </div>
               <div className="flex w-full items-center justify-between gap-4">
-                <span className="min-w-36 max-w-36">{'Client id'}: </span>
+                <span className="max-w-36 min-w-36">{'Client id'}: </span>
                 <TextInput
                   readOnly
                   required
@@ -127,11 +127,11 @@ function OAuth() {
                   id="client_id"
                   name="client_id"
                   type="text"
-                  value={clientId || ''}
+                  value={clientId ?? ''}
                 />
               </div>
               <div className="flex w-full items-center justify-between gap-4">
-                <span className="min-w-36 max-w-36">{'Redirect uri'}: </span>
+                <span className="max-w-36 min-w-36">{'Redirect uri'}: </span>
                 <TextInput
                   readOnly
                   required
@@ -143,7 +143,7 @@ function OAuth() {
                 />
               </div>
               <div className="flex w-full items-center justify-between gap-4">
-                <span className="min-w-36 max-w-36">{'Scopes'}: </span>
+                <span className="max-w-36 min-w-36">{'Scopes'}: </span>
                 <TextInput
                   readOnly
                   required
@@ -151,14 +151,14 @@ function OAuth() {
                   id="scopes"
                   name="scopes"
                   type="text"
-                  value={scopes || ''}
+                  value={scopes ?? ''}
                 />
               </div>
             </div>
 
             <div className="flex w-full items-center gap-4">
               <label
-                className="min-w-36 max-w-36 text-sm font-medium text-gray-700"
+                className="max-w-36 min-w-36 text-sm font-medium text-gray-200"
                 htmlFor="access_type"
               >
                 Access Type:
@@ -177,7 +177,7 @@ function OAuth() {
 
             <div className="flex w-full items-center gap-4">
               <label
-                className="min-w-36 max-w-36 text-sm font-medium text-gray-700"
+                className="max-w-36 min-w-36 text-sm font-medium text-gray-200"
                 htmlFor="location_domain"
               >
                 Location:
@@ -202,13 +202,18 @@ function OAuth() {
             <div className="flex w-full items-center justify-center gap-4">
               <Button
                 className="mt-4"
-                color="light"
+                color="secondary"
                 type="button"
                 onClick={() => (window.location.href = '/scope')}
               >
                 Previous
               </Button>
-              <Button className="mt-4" disabled={isPending} type="submit">
+              <Button
+                className="mt-4"
+                color="primary"
+                disabled={isPending}
+                type="submit"
+              >
                 {isPending ? (
                   <Spinner aria-label="Loading..." />
                 ) : (
@@ -225,7 +230,7 @@ function OAuth() {
             <Step index={2} />
             <div className="flex w-full flex-col items-center justify-center gap-4 lg:w-1/2">
               <div className="flex w-full items-center justify-between gap-4">
-                <span className="min-w-36 max-w-36">{'Code'}: </span>
+                <span className="max-w-36 min-w-36">{'Code'}: </span>
                 <TextInput
                   readOnly
                   required
@@ -237,7 +242,7 @@ function OAuth() {
                 />
               </div>
               <div className="flex w-full items-center justify-between gap-4">
-                <span className="min-w-36 max-w-36">{'Client id'}: </span>
+                <span className="max-w-36 min-w-36">{'Client id'}: </span>
                 <TextInput
                   readOnly
                   required
@@ -249,7 +254,7 @@ function OAuth() {
                 />
               </div>
               <div className="flex w-full items-center justify-between gap-4">
-                <span className="min-w-36 max-w-36">{'Client secret'}: </span>
+                <span className="max-w-36 min-w-36">{'Client secret'}: </span>
                 <TextInput
                   readOnly
                   required
@@ -261,7 +266,7 @@ function OAuth() {
                 />
               </div>
               <div className="flex w-full items-center justify-between gap-4">
-                <span className="min-w-36 max-w-36">{'Location'}: </span>
+                <span className="max-w-36 min-w-36">{'Location'}: </span>
                 <TextInput
                   readOnly
                   required
@@ -273,7 +278,7 @@ function OAuth() {
                 />
               </div>
               <div className="flex w-full items-center justify-between gap-4">
-                <span className="min-w-36 max-w-36">{'Redirect uri'}: </span>
+                <span className="max-w-36 min-w-36">{'Redirect uri'}: </span>
                 <TextInput
                   readOnly
                   required
@@ -285,7 +290,7 @@ function OAuth() {
                 />
               </div>
               <div className="flex w-full items-center justify-between gap-4">
-                <span className="min-w-36 max-w-36">{'Grant type'}: </span>
+                <span className="max-w-36 min-w-36">{'Grant type'}: </span>
                 <TextInput
                   readOnly
                   required
@@ -309,7 +314,9 @@ function OAuth() {
                 >
                   Re-authenticate
                 </Button>
-                <Button type="submit">Generate Token</Button>
+                <Button color="primary" type="submit">
+                  Generate Token
+                </Button>
               </div>
             )}
 
@@ -327,9 +334,7 @@ function OAuth() {
                     />
                   </div>
                   <div className="relative flex w-full items-center justify-center gap-4">
-                    <ClipboardWithIconText
-                      valueToCopy={JSON.stringify(response)}
-                    />
+                    <ClipboardWithIcon valueToCopy={JSON.stringify(response)} />
                     <Button
                       color="failure"
                       type="button"
@@ -338,6 +343,7 @@ function OAuth() {
                       Re-authenticate
                     </Button>
                     <Button
+                      color="primary"
                       type="button"
                       onClick={() => (window.location.href = '/request')}
                     >

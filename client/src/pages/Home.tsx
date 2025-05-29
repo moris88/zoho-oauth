@@ -1,11 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import {
-  TextInput,
-  Button,
-  Spinner,
-  ClipboardWithIconText,
-} from 'flowbite-react'
+import { TextInput, Button, Spinner, ClipboardWithIcon } from 'flowbite-react'
 import { actionHome, REDIRECT_URI } from '@/utils'
 import { Step } from '@/components'
 
@@ -13,8 +8,8 @@ function Home() {
   const hasToken = localStorage.getItem('has_token') !== null
   const [{ clientId, clientSecret }, formAction, isPending] =
     React.useActionState(actionHome, {
-      clientId: localStorage.getItem('client_id') || '',
-      clientSecret: localStorage.getItem('client_secret') || '',
+      clientId: localStorage.getItem('client_id') ?? '',
+      clientSecret: localStorage.getItem('client_secret') ?? '',
     })
 
   if (isPending) {
@@ -30,8 +25,8 @@ function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-5">
-      <div className="flex flex-col items-center justify-center gap-4 rounded-lg bg-white p-4 shadow-md">
+    <div className="min-h-screen p-5">
+      <div className="flex flex-col items-center justify-center gap-4 rounded-lg bg-gray-800 p-4 shadow-md">
         <Step index={-1} />
         <h1 className="mb-4 text-3xl font-bold">OAuth Setup</h1>
         <hr className="w-full" />
@@ -47,7 +42,7 @@ function Home() {
                 target="_blank"
                 to="https://api-console.zoho.com/"
               >
-                <Button outline type="button">
+                <Button color="primary" type="button">
                   Go to Zoho API Console
                 </Button>
               </Link>
@@ -76,7 +71,7 @@ function Home() {
                 name="redirectUri"
                 type="text"
               />
-              <ClipboardWithIconText label="Copy" valueToCopy={REDIRECT_URI} />
+              <ClipboardWithIcon valueToCopy={REDIRECT_URI} />
             </div>
           </div>
         </div>
@@ -87,7 +82,7 @@ function Home() {
           <div className="flex w-full flex-col items-center justify-center gap-4">
             <div className="w-full lg:w-1/2">
               <label
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-200"
                 htmlFor="client_id"
               >
                 Client ID
@@ -105,7 +100,7 @@ function Home() {
 
             <div className="w-full lg:w-1/2">
               <label
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-200"
                 htmlFor="client_secret"
               >
                 Client Secret
@@ -125,7 +120,12 @@ function Home() {
           <hr className="w-full" />
 
           <div className="flex w-full items-center justify-center gap-4">
-            <Button className="mt-4" disabled={isPending} type="submit">
+            <Button
+              className="mt-4"
+              color="primary"
+              disabled={isPending}
+              type="submit"
+            >
               Next
             </Button>
           </div>

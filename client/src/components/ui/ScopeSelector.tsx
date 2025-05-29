@@ -8,7 +8,10 @@ interface ScopeSelectorProps {
   onChangeScopes: (scopes: string[]) => void
 }
 
-function ScopeSelector({ onEmptyScopes, onChangeScopes }: ScopeSelectorProps) {
+function ScopeSelector({
+  onEmptyScopes,
+  onChangeScopes,
+}: Readonly<ScopeSelectorProps>) {
   const [selectedScopes, setSelectedScopes] = React.useState<string[]>([])
   const [searchScope, setSearchScope] = React.useState<string | null>(null)
 
@@ -44,7 +47,7 @@ function ScopeSelector({ onEmptyScopes, onChangeScopes }: ScopeSelectorProps) {
         icon={MdSearch}
         placeholder="Search scope"
         type="text"
-        value={searchScope || ''}
+        value={searchScope ?? ''}
         onChange={(e) => setSearchScope(e.target.value)}
       />
       {/* Elenco scopes */}
@@ -77,11 +80,12 @@ function ScopeSelector({ onEmptyScopes, onChangeScopes }: ScopeSelectorProps) {
                         <div key={scope} className="flex items-center">
                           <Checkbox
                             checked={selectedScopes.includes(scope)}
+                            className="accent-cyan-500"
                             id={scope}
                             onChange={() => handleScopeChange(scope)}
                           />
                           <label
-                            className="ml-2 select-none text-sm font-medium text-gray-900"
+                            className="ml-2 text-sm font-medium text-gray-200 select-none"
                             htmlFor={scope}
                           >
                             {scope}
