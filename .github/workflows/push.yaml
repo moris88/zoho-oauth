@@ -1,0 +1,135 @@
+name: 'Qualità e Build del codice'
+
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '*'
+
+jobs:
+  eslint-client:
+    runs-on: ubuntu-latest
+    name: Eslint Client
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: 'Install dependencies'
+        run: |
+          echo "Running npm install in $(pwd)"
+          npm install
+        working-directory: client
+
+      - name: 'Check lint code'
+        run: |
+          echo "Running lint in $(pwd)"
+          CI=false npm run lint
+        working-directory: client
+
+  build-client:
+    needs: eslint-client
+    runs-on: ubuntu-latest
+    name: Build Client
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: 'Install dependencies'
+        run: |
+          echo "Running npm install in $(pwd)"
+          npm install
+        working-directory: client
+
+      - name: 'Building app'
+        run: |
+          echo "Running build in $(pwd)"
+          CI=false npm run build
+        working-directory: client
+
+  eslint-server:
+    runs-on: ubuntu-latest
+    name: Eslint Server
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: 'Install dependencies'
+        run: |
+          echo "Running npm install in $(pwd)"
+          npm install
+        working-directory: server
+
+      - name: 'Check lint code'
+        run: |
+          echo "Running lint in $(pwd)"
+          CI=false npm run lint
+        working-directory: server
+
+  build-server:
+    needs: eslint-server
+    runs-on: ubuntu-latest
+    name: Build Server
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: 'Install dependencies'
+        run: |
+          echo "Running npm install in $(pwd)"
+          npm install
+        working-directory: server
+
+      - name: 'Building server'
+        run: |
+          echo "Running build in $(pwd)"
+          CI=false npm run build
+        working-directory: server
