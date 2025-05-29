@@ -7,12 +7,12 @@ const { log: logger } = console
 const { result: run } = concurrently(
   [
     {
-      command: 'vite',
+      command: 'cd client && npm run dev',
       name: 'vite',
       prefixColor: 'blue',
     },
     {
-      command: 'pnpm serve',
+      command: 'cd server && npm run dev',
       name: 'server',
       prefixColor: 'yellow',
     },

@@ -1,4 +1,4 @@
-import { SERVER_URL } from './metadata'
+import { SERVER_URL, SERVER_AUTH } from './metadata'
 import { buildHeaders, buildUrlWithParams } from './utils'
 
 export function actionHome(
@@ -61,7 +61,10 @@ export async function actionGenerateToken(
     const redirectUri = queryData.get('redirect_uri')
     const response = await fetch(`${SERVER_URL}/api/oauth`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `${SERVER_AUTH}`,
+      },
       body: JSON.stringify({
         location: locationDomain,
         client_id: clientId,

@@ -1,13 +1,29 @@
-/* eslint-disable no-console */
 import express from 'express'
 import cors from 'cors'
-import fetch from 'node-fetch' // per fare richieste
+import dotenv from 'dotenv'
+
+dotenv.config() // carica le variabili d'ambiente dal file .env
+
+const SERVER_PORT = process.env.SERVER_PORT || 3001
+const SERVER_AUTH = process.env.SERVER_AUTH || ''
 
 const app = express()
 app.use(cors()) // abilita CORS per il tuo server
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+// Middleware per autenticazione di base
+app.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.url}`)
+
+  // Esempio: verifica header Authorization
+  if (SERVER_AUTH && req.headers.authorization !== SERVER_AUTH) {
+    return res.status(401).json({ error: 'Unauthorized' })
+  }
+
+  next() // passa al prossimo middleware o route
+})
 
 // Crea un endpoint proxy per l'OAuth
 app.post('/api/oauth', async (req, res) => {
@@ -119,9 +135,8 @@ app.post('/api/request', async (req, res) => {
   }
 })
 
-const PORT = 3001
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+app.listen(SERVER_PORT, () => {
+  console.log(`Server running on port ${SERVER_PORT}`)
 })
 
 function getResponse(res) {

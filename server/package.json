@@ -1,0 +1,28 @@
+{
+  "name": "zoho-oauth-server",
+  "version": "0.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "build": "esbuild src/index.js --bundle --platform=node --minify --outfile=dist/server.js",
+    "lint": "eslint src --max-warnings 10",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.27.0",
+    "dotenv": "^16.5.0",
+    "esbuild": "0.25.3",
+    "eslint": "^9.27.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.4.0",
+    "globals": "^16.2.0",
+    "nodemon": "^3.0.1",
+    "prettier": "^3.5.3"
+  }
+}
