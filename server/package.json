@@ -2,7 +2,6 @@
   "name": "zoho-oauth-server",
   "version": "0.0.0",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "dev": "nodemon src/index.js",
     "build": "esbuild src/index.js --bundle --platform=node --minify --outfile=dist/server.js",
